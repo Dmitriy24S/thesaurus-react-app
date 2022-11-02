@@ -10,46 +10,68 @@ interface DataItem {
 function App() {
   const [data, setData] = useState<DataItem[]>([])
   const [searchInput, setSearchInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-  const fetchData = async (e: FormEvent) => {
+  const fetchData = async (word: string) => {
+    const parsedSearchInput = word.split(' ').join('+')
+    console.log({ word }) // {parsedSearchInput: 'snow+village'}
+
+    setIsLoading(true)
+
+    try {
+      // ml - Means like constraint
+      // const response = await fetch(`https://api.datamuse.com/words?ml=${parsedSearchInput}`)
+
+      // jja - Popular nouns modified by the given adjective, per Google Books Ngrams	gradual → increase
+
+      // jjb - Popular adjectives used to modify the given noun, per Google Books Ngrams	beach → sandy
+      // const response = await fetch(`https://api.datamuse.com/words?rel_jjb=${parsedSearchInput}`)
+
+      // rel_syn
+      // Synonyms: // ocean → sea
+      // const response = await fetch(`https://api.datamuse.com/words?rel_syn=${parsedSearchInput}`)
+      console.log('fetching data with word:', parsedSearchInput)
+
+      const response = await fetch(`https://api.datamuse.com/words?rel_syn=${parsedSearchInput}`)
+      const data = await response.json()
+      setData(data)
+      console.log('data fetch:', data)
+      //     [
+      //       {
+      //           "word": "igloo",
+      //           "score": 10604,
+      //           "tags": [
+      //               "n"
+      //           ]
+      //       },
+      //       {
+      //           "word": "rainfall",
+      //           "score": 10604,
+      //           "tags": [
+      //               "n"
+      //           ]
+      //       },
+    } catch (error) {
+      console.log(error)
+      alert('Error fetching results')
+    }
+    setIsLoading(false)
+  }
+
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    const parsedSearchInput = searchInput.split(' ').join('+')
-    console.log({ parsedSearchInput }) // {parsedSearchInput: 'snow+village'}
+    fetchData(searchInput)
+  }
 
-    // ml - Means like constraint
-    // const response = await fetch(`https://api.datamuse.com/words?ml=${parsedSearchInput}`)
-
-    // jja - Popular nouns modified by the given adjective, per Google Books Ngrams	gradual → increase
-
-    // jjb - Popular adjectives used to modify the given noun, per Google Books Ngrams	beach → sandy
-    // const response = await fetch(`https://api.datamuse.com/words?rel_jjb=${parsedSearchInput}`)
-
-    // Synonyms: // ocean → sea
-    const response = await fetch(`https://api.datamuse.com/words?rel_syn=${parsedSearchInput}`)
-    const data = await response.json()
-    setData(data)
-    console.log('data fetch:', data)
-    //     [
-    //       {
-    //           "word": "igloo",
-    //           "score": 10604,
-    //           "tags": [
-    //               "n"
-    //           ]
-    //       },
-    //       {
-    //           "word": "rainfall",
-    //           "score": 10604,
-    //           "tags": [
-    //               "n"
-    //           ]
-    //       },
+  const handleClickWord = (newWord: string) => {
+    setSearchInput(newWord)
+    fetchData(newWord)
   }
 
   return (
     <div className='App'>
       <h1>Thesaurus App w/ Datamuse API</h1>
-      <form className='form' onSubmit={fetchData}>
+      <form className='form' onSubmit={handleSubmit}>
         {/* <label htmlFor='search-input'>Find words with a similar meaning to:</label> */}
         <label htmlFor='search-input'>Find synonyms for the word:</label>
         <input
@@ -62,11 +84,17 @@ function App() {
         />
         <button type='submit'>Search</button>
       </form>
-      <ul className='result-list'>
-        {data.map((item: DataItem) => (
-          <li className='result-word'>{item.word}</li>
-        ))}
-      </ul>
+      {isLoading ? (
+        <h3 className='loading'>Loading...</h3>
+      ) : (
+        <ul className='result-list'>
+          {data.map((item: DataItem) => (
+            <li key={item.word} className='result-word' onClick={() => handleClickWord(item.word)}>
+              {item.word}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
