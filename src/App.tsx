@@ -84,9 +84,12 @@ function App() {
         />
         <button type='submit'>Search</button>
       </form>
-      {isLoading ? (
-        <h3 className='loading'>Loading...</h3>
-      ) : (
+      {/* if loading - show loading */}
+      {isLoading && <h3 className='loading'>Loading...</h3>}
+      {/* if entered search value, completed loading, fetched no data - show no results */}
+      {searchInput && !isLoading && data.length === 0 && <h3>No Results</h3>}
+      {/* if completed loading, have data - show data */}
+      {!isLoading && data && (
         <ul className='result-list'>
           {data.map((item: DataItem) => (
             <li key={item.word} className='result-word' onClick={() => handleClickWord(item.word)}>
