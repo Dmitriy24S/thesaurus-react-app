@@ -44,6 +44,8 @@
   font-size: 1rem;
   color: inherit;
   font-family: inherit;
+  border: 1px solid #ccc8c8;
+  border-radius: 5px;
 }
 
 .result-list {
