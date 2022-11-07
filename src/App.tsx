@@ -134,6 +134,7 @@ function App() {
         <label htmlFor='search-input'>Find synonyms for the word:</label>
         <input
           value={searchInput}
+          placeholder='e.g. amazing'
           type='search'
           name='search-input'
           id='search-input'
